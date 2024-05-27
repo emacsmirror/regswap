@@ -1,0 +1,84 @@
+* regswap.el
+
+`regswap.el` swaps two regions of text within a buffer. This can be useful for various text editing tasks where you need to quickly interchange the contents of two regions.
+
+** Features
+
+- Swap two regions of text within a buffer.
+- Supports interactive functions for easy region marking and swapping.
+- Provides visual feedback with customizable highlighting for swap regions.
+- Handles edge cases such as empty regions and overlapping regions gracefully.
+- Includes convenient keybindings for quick access to its functionality.
+
+** Installation
+
+To install `regswap.el`, you can download it from the following URL:
+
+[[http://github.com/skitov/regswap][http://github.com/skitov/regswap]]
+
+After downloading, add the following to your Emacs init script:
+
+#+BEGIN_SRC emacs-lisp
+(add-to-list 'load-path "/path/to/regswap")
+(require 'regswap)
+(regswap-setup-default-keybindings)
+#+END_SRC
+
+** Usage
+
+The package provides two interactive functions:
+
+*** `regswap-mark-region`
+
+If no swap region is defined, `regswap-mark-region` sets the current region as the swap region. If a swap region is already defined, this function swaps the contents of the current region with the swap region and then undefines the swap region.
+
+- *Keybinding:* `C-c w`
+
+*** `regswap-cancel`
+
+This function undefines the swap region and removes any highlighting overlay.
+
+- *Keybinding:* `C-c C-w`
+
+*** Highlighting
+
+When `regswap-highlight` is non-nil, the swap region is highlighted with `regswap-reg-face` when non-empty. If the swap region is empty, its position is indicated by displaying a `║` character, highlighted with `regswap-empty-face`. By default, `regswap-highlight` is set to `t`.
+
+** Edge Cases
+
+- *Empty Regions:* Either the current region or the swap region can be empty. In such cases, the content of the non-empty region is moved to the position of the empty region.
+- *Intersecting Regions:* If the current region and the swap region overlap, no changes are made to the buffer.
+
+** Buffer Changes
+
+If changes are made to the buffer when a swap region is defined:
+
+- If the changed area overlaps with the swap region, swapping is cancelled.
+- If changes are inside the swap region, the swap region adjusts accordingly, and the modified text will be swapped.
+- If changes are made before the swap region, the swap region shifts by the length difference of the changed text.
+- Insertions at the borders of the swap region are treated as outside of the swap region.
+
+** Keybindings
+
+To set up the suggested keybindings, include the following in your Emacs init script:
+
+#+BEGIN_SRC emacs-lisp
+(regswap-setup-default-keybindings)
+#+END_SRC
+
+This binds `C-c w` to `regswap-mark-region` and `C-c C-w` to `regswap-cancel`.
+
+** License
+
+`regswap.el` is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License along with GNU Emacs; if not, write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+
+** Author
+
+Sergey Kitov
+
+- *URL:* [[http://github.com/skitov/regswap][http://github.com/skitov/regswap]]
+- *Version:* 1.0
