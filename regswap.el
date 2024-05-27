@@ -1,4 +1,4 @@
-;;; regswap.el swaps two regions.
+;;; regswap.el --- Functionality for swapping two regions
 
 ;;
 ;; COpyright (C) 2024 by Sergey Kitov
@@ -23,8 +23,11 @@
 
 ;; Author: Sergey Kitov
 ;; URL: http://github.com/skitov/regswap
-;; version 1.0
-;;
+;; Version: 1.0
+;; Package-Requires: ((emacs "24.3"))
+
+;;; Commentary:
+
 ;; The package provides two interactive functions:
 ;; regswap-mark-region and regswap-cancel
 ;;
@@ -51,8 +54,8 @@
 ;; - If changes are done before the swap region, swap region is shifted by length difference of changed text.
 ;; insertions at the borders of the swap region are treated as outside of swap region (not modifying text for swapping)
 ;;
-;; Keybindings suggested by the package are "C-c w" for regswap-mark-region and
-;; "C-c C-w" for regswap-cancel.
+;; Keybindings suggested by the package are "C-c C-c w" for regswap-mark-region and
+;; "C-c C-c C-w" for regswap-cancel.
 ;; These keybindings can be set by placing (regswap-setup-default-keybindings) in emacs init script.
 ;;
 
@@ -107,8 +110,7 @@ otherwise swaps content of region and regswap-region."
 	(deactivate-mark)
 	(if regswap-highlight
 	    (regswap-highlight-swap)
-	  (message "swap set to: %s" regswap-region))
-	))
+	  (message "swap set to: %s" regswap-region))))
 
 (defun regswap-do-swap(first second)
   "Swaps contents of two non-intercecting regions."
@@ -142,8 +144,8 @@ otherwise swaps content of region and regswap-region."
 	      (setq regswap-region `(,swap-begin ,swap-end)))))))))
 
 (defun regswap-setup-default-keybindings()
-  (global-set-key (kbd "C-c w") 'regswap-mark-region)
-  (global-set-key (kbd "C-c C-w") 'regswap-cancel))
+  (global-set-key (kbd "C-c C-c w") 'regswap-mark-region)
+  (global-set-key (kbd "C-c C-c C-w") 'regswap-cancel))
 
 (provide 'regswap)
 
