@@ -32,13 +32,13 @@ The package provides two interactive functions:
 
 If no swap region is defined, `regswap-mark-region` sets the current region as the swap region. If a swap region is already defined, this function swaps the contents of the current region with the swap region and then undefines the swap region.
 
-- *Keybinding:* `C-c C-c w`
+- *Keybinding:* `C-x w w`
 
 *** `regswap-cancel`
 
 This function undefines the swap region and removes any highlighting overlay.
 
-- *Keybinding:* `C-c C-c C-w`
+- *Keybinding:* `C-x w c`
 
 *** Highlighting
 
@@ -66,7 +66,7 @@ To set up the suggested keybindings, include the following in your Emacs init sc
 (regswap-setup-default-keybindings)
 #+END_SRC
 
-This binds `C-c C-c w` to `regswap-mark-region` and `C-c C-c C-w` to `regswap-cancel`.
+This binds `C-x w w` to `regswap-mark-region` and `C-x w c` to `regswap-cancel`.
 
 ** License
 

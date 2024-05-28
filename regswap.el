@@ -54,9 +54,9 @@
 ;; - If changes are done before the swap region, swap region is shifted by length difference of changed text.
 ;; insertions at the borders of the swap region are treated as outside of swap region (not modifying text for swapping)
 ;;
-;; Keybindings suggested by the package are "C-c C-c w" for regswap-mark-region and
-;; "C-c C-c C-w" for regswap-cancel.
-;; These keybindings can be set by placing (regswap-setup-default-keybindings) in emacs init script.
+;; Keybindings suggested by the package are "C-x w w" for regswap-mark-region and
+;; "C-x w c" for regswap-cancel.
+;; These keybindings can be set by placing (regswap-setup-default-keybindings) in Emacs init script.
 ;;
 
 ;;; Code:
@@ -76,7 +76,8 @@
   "Face for highlighting position to swap:")
 
 (defun regswap-cancel(&optional silent)
-  "Sets regswap-region to nil, removes highlight overlay."
+  "Set `regswap-region' to nil, remove highlight overlay.
+Doesn't give messages if SILENT is non-nil."
   (interactive)
   (unless silent (message "Swapping cancelled."))
   (remove-hook 'after-change-functions 'regswap-handle-change t)
@@ -84,7 +85,7 @@
   (setq regswap-region nil))
 
 (defun regswap-highlight-swap()
-  "Puts overlay for highlighting regswap-region"
+  "Put overlay for highlighting `regswap-region'."
   (let ((swap-begin (car regswap-region)) (swap-end (cadr regswap-region)))
     (setq regswap-overlay (make-overlay swap-begin swap-end))
     (if (< swap-begin swap-end)
@@ -93,27 +94,26 @@
 		   (propertize "\u2551" 'face 'regswap-empty-face)))))
 
 (defun regswap-rgn()
-  "Calculates region for swap, region if transient-mark-mode and mark-active,
-otherwise zero length region at point"
-  (if (and (transient-mark-mode) mark-active)
-	  `(,(region-beginning) ,(region-end))
-	`(,(point) ,(point))))
+  "Return region for swap."
+  (if (region-active-p)
+      `(,(region-beginning) ,(region-end))
+    `(,(point) ,(point))))
 
 (defun regswap-mark-region()
-  "Sets regswap-region if regswap-region is unset,
-otherwise swaps content of region and regswap-region."
+  "Set `regswap-region' or swap `regswap-region' with region."
   (interactive)
   (if regswap-region
-	  (regswap-do-swap regswap-region (regswap-rgn))
-	(setq regswap-region (regswap-rgn))
-	(add-hook 'after-change-functions 'regswap-handle-change nil t)
-	(deactivate-mark)
-	(if regswap-highlight
-	    (regswap-highlight-swap)
-	  (message "swap set to: %s" regswap-region))))
+      (regswap-do-swap regswap-region (regswap-rgn))
+    (setq regswap-region (regswap-rgn))
+    (add-hook 'after-change-functions 'regswap-handle-change nil t)
+    (deactivate-mark)
+    (if regswap-highlight
+	(regswap-highlight-swap)
+      (message "swap set to: %s" regswap-region))))
 
 (defun regswap-do-swap(first second)
-  "Swaps contents of two non-intercecting regions."
+  "Swap contents of FIRST and SECOND regions.
+If regions overlap give error message without changes."
   (let ((b1 (car first)) (e1 (cadr first)) (b2 (car second)) (e2 (cadr second)))
     (regswap-cancel t)
     (setq regswap-region nil)
@@ -128,7 +128,9 @@ otherwise swaps content of region and regswap-region."
 	   (goto-char (min b1 b2))))))))
 
 (defun regswap-handle-change(reg-begin reg-end old-len)
-  "Keeps regswap-region valid in case of changes in buffer."
+  "Keep regswap-region valid in case of changes in buffer.
+REG-BEGIN and REG-END are bounds of region just changed,
+OLD-LEN is length of the region before change."
   (when regswap-region
     (let ((swap-begin (car regswap-region)) (swap-end (cadr regswap-region)))
       (when (< reg-begin swap-end)
@@ -144,8 +146,9 @@ otherwise swaps content of region and regswap-region."
 	      (setq regswap-region `(,swap-begin ,swap-end)))))))))
 
 (defun regswap-setup-default-keybindings()
-  (global-set-key (kbd "C-c C-c w") 'regswap-mark-region)
-  (global-set-key (kbd "C-c C-c C-w") 'regswap-cancel))
+  "Set key bindings for package interactive functions."
+  (global-set-key (kbd "C-x w w") 'regswap-mark-region)
+  (global-set-key (kbd "C-x w c") 'regswap-cancel))
 
 (provide 'regswap)
 
