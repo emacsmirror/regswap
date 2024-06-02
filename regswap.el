@@ -41,7 +41,8 @@
 ;;
 ;; If swap region and region are intersecting, no changes are made to buffer.
 ;;
-;; When regswap-highlight is non-nil, swap region is highlighted with regswap-reg-face, when non-empty.
+;; When regswap-highlight is non-nil,
+;; swap region is highlighted with regswap-reg-face, when non-empty.
 ;; When swap region is empty, it's position is heighlighted by displaying
 ;; ║ character in position of swap region, heighlighted with regswap-empty-face.
 ;; regswap-highlight value is t by default.
@@ -50,13 +51,22 @@
 ;;
 ;; If changes are made to the buffer, when swap region is defined:
 ;; - If changed area overlaps with swap region, swapping is cancelled
-;; - If changes are inside of the swap region, swap region is changed accordingly, modified text will be swapped.
-;; - If changes are done before the swap region, swap region is shifted by length difference of changed text.
-;; insertions at the borders of the swap region are treated as outside of swap region (not modifying text for swapping)
+;; - If changes are inside of the swap region,
+;; swap region is changed accordingly, modified text will be swapped.
+;; - If changes are done before the swap region,
+;; swap region is shifted by length difference of changed text.
+;; - insertions at the borders of the swap region are treated as outside of
+;; swap region (not modifying text for swapping)
 ;;
-;; Keybindings suggested by the package are "C-x w w" for regswap-mark-region and
-;; "C-x w c" for regswap-cancel.
-;; These keybindings can be set by placing (regswap-setup-default-keybindings) in Emacs init script.
+;; Keybindings suggested by the package are "C-x w w" for regswap-mark-region
+;; and "C-x w c" for regswap-cancel.
+;; These keybindings can be set by placing (regswap-setup-default-keybindings)
+;; in Emacs init script.
+;;
+;; For setting other keybindings place
+;; (global-set-key (kbd "xxx") 'regswap-mark-region)
+;; (global-set-key (kbd "yyy") 'regswap-cancel)
+;; where "xxx" and "yyy" are keybindings of your choice.
 ;;
 
 ;;; Code:
@@ -75,16 +85,16 @@
   `((t :foreground ,regswap-hl-color))
   "Face for highlighting position to swap:")
 
-(defun regswap-cancel(&optional silent)
+(defun regswap-cancel (&optional silent)
   "Set `regswap-region' to nil, remove highlight overlay.
 Doesn't give messages if SILENT is non-nil."
   (interactive)
   (unless silent (message "Swapping cancelled."))
-  (remove-hook 'after-change-functions 'regswap-handle-change t)
+  (remove-hook 'after-change-functions #'regswap-handle-change t)
   (when regswap-overlay (delete-overlay regswap-overlay))
   (setq regswap-region nil))
 
-(defun regswap-highlight-swap()
+(defun regswap-highlight-swap ()
   "Put overlay for highlighting `regswap-region'."
   (let ((swap-begin (car regswap-region)) (swap-end (cadr regswap-region)))
     (setq regswap-overlay (make-overlay swap-begin swap-end))
@@ -93,25 +103,25 @@ Doesn't give messages if SILENT is non-nil."
       (overlay-put regswap-overlay 'before-string
 		   (propertize "\u2551" 'face 'regswap-empty-face)))))
 
-(defun regswap-rgn()
+(defun regswap-rgn ()
   "Return region for swap."
   (if (region-active-p)
       `(,(region-beginning) ,(region-end))
     `(,(point) ,(point))))
 
-(defun regswap-mark-region()
+(defun regswap-mark-region ()
   "Set `regswap-region' or swap `regswap-region' with region."
   (interactive)
   (if regswap-region
       (regswap-do-swap regswap-region (regswap-rgn))
     (setq regswap-region (regswap-rgn))
-    (add-hook 'after-change-functions 'regswap-handle-change nil t)
+    (add-hook 'after-change-functions #'regswap-handle-change nil t)
     (deactivate-mark)
     (if regswap-highlight
 	(regswap-highlight-swap)
       (message "swap set to: %s" regswap-region))))
 
-(defun regswap-do-swap(first second)
+(defun regswap-do-swap (first second)
   "Swap contents of FIRST and SECOND regions.
 If regions overlap give error message without changes."
   (let ((b1 (car first)) (e1 (cadr first)) (b2 (car second)) (e2 (cadr second)))
@@ -127,7 +137,7 @@ If regions overlap give error message without changes."
 	    (delete-and-extract-region (min b2 b1) (min e2 e1)))
 	   (goto-char (min b1 b2))))))))
 
-(defun regswap-handle-change(reg-begin reg-end old-len)
+(defun regswap-handle-change (reg-begin reg-end old-len)
   "Keep regswap-region valid in case of changes in buffer.
 REG-BEGIN and REG-END are bounds of region just changed,
 OLD-LEN is length of the region before change."
@@ -145,10 +155,10 @@ OLD-LEN is length of the region before change."
 	      (when regswap-highlight (move-overlay regswap-overlay swap-begin swap-end))
 	      (setq regswap-region `(,swap-begin ,swap-end)))))))))
 
-(defun regswap-setup-default-keybindings()
+(defun regswap-setup-default-keybindings ()
   "Set key bindings for package interactive functions."
-  (global-set-key (kbd "C-x w w") 'regswap-mark-region)
-  (global-set-key (kbd "C-x w c") 'regswap-cancel))
+  (global-set-key (kbd "C-x w w") #'regswap-mark-region)
+  (global-set-key (kbd "C-x w c") #'regswap-cancel))
 
 (provide 'regswap)
 
